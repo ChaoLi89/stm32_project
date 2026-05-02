@@ -6,6 +6,15 @@
  */
 #include "my_own.h"
 
+extern UART_HandleTypeDef huart4;
+/*printf support*/
+int _write(int file, char *ptr, int len)
+{
+  uart_send_poll(&huart4, (uint8_t*)ptr, len, 50);
+  return len;
+}
+
+
 void delay(uint32_t time)
 {
 	HAL_Delay(time);
@@ -73,3 +82,56 @@ void uart_receive_to_idle_dma(UART_HandleTypeDef *huart, uint8_t *buffer, uint16
 //
 //	}
 //}
+
+/*adc poll*/
+void adc_start(ADC_HandleTypeDef* adc)
+{
+	HAL_ADC_Start(adc);
+}
+void adc_stop(ADC_HandleTypeDef* adc)
+{
+	HAL_ADC_Stop(adc);
+}
+uint32_t adc_read(ADC_HandleTypeDef* adc)
+{
+	uint32_t ret = 0;
+	if (HAL_ADC_PollForConversion(adc, 10) == HAL_OK)
+	{
+	    ret = HAL_ADC_GetValue(adc);
+	}
+	return ret;
+}
+
+/*adc interrupt*/
+void adc_start_it(ADC_HandleTypeDef* adc)
+{
+	HAL_ADC_Start_IT(adc);
+}
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* adc)
+{
+	if(adc->Instance == ADC1)
+	{
+//		adcValue = HAL_ADC_GetValue(adc); //assign the value to a global variable here
+	}
+}
+
+/*adc dma*/
+void adc_start_dma(ADC_HandleTypeDef* adc, uint32_t* results, uint16_t len)
+{
+	HAL_ADC_Start_DMA(adc, results, len);
+}
+
+/*conversion*/
+uint32_t convert_to_value(uint32_t digit)
+{
+	return digit*330/4095;
+}
+uint32_t get_temp(uint32_t value)
+{
+	const uint32_t avg_slope = 430;
+	const uint32_t v25 = 143;
+
+	return (v25 - value)/avg_slope + 2500;
+}
+
+
