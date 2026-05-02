@@ -21,7 +21,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "my_own.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,40 +111,41 @@ int main(void)
 //   HAL_UART_Receive_DMA(&huart4, rx_buffer, 10);
 //  __HAL_UART_ENABLE_IT(&huart4, UART_IT_IDLE);
    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buffer, 10);
-   __HAL_DMA_DISABLE_IT(huart4.hdmarx, DMA_IT_HT);
+//   __HAL_DMA_DISABLE_IT(huart4.hdmarx, DMA_IT_HT);
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  static int i = 0;
+//	  static int i = 0;
+//
 
-	  if (i == 100)
-	  {
-		  HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_9);
-		  i = 0;
-	  }
-	  ++i;
-	 	// HAL_UART_Transmit(&huart4, (const uint8_t*)(msg), strlen(msg), 100);
-	 		  // Receive data: waits up to 1000ms for 10 bytes
-//	 		  HAL_UART_Receive(&huart4, rx_buffer, 10, 10000);
-//	 		  HAL_UART_Transmit(&huart4, rx_buffer, 10, 100);
-//	 	 if (tx_ready)
-//	 	 {
-//	 		tx_ready = 0;
-//	 		//HAL_UART_Transmit_DMA(&huart4, (uint8_t*)msg, (uint16_t)strlen(msg));
-//	 	 }
-	 	 if (rx_ready && rx_length != 0)
-	 	 {
-	 		rx_ready = 0;
-	 		 HAL_UART_Transmit_DMA(&huart4, (uint8_t*)tx_buffer, rx_length);
-	 	 }
+	  gpio_toggle(GPIOB, GPIO_PIN_9);
 
+	  delay(1000);
+//	//	  ++i;
+//	//	 	 HAL_UART_Transmit(&huart4, (const uint8_t*)(msg), strlen(msg), 100);
+//	//	 		  // Receive data: waits up to 1000ms for 10 bytes
+//	////	 		  HAL_UART_Receive(&huart4, rx_buffer, 10, 10000);
+//	////	 		  HAL_UART_Transmit(&huart4, rx_buffer, 10, 100);
+//			 if (tx_ready)
+//			 {
+//				tx_ready = 0;
+//			//	snprintf(tx_buffer, 10, "c:%f\n\r", 2.3f);
+//				printf("chao %f\r\n",18.8);
+//				printf("chao %d\r\n",18);
+//	//	 		 HAL_UART_Transmit(&huart4, "x", 1, 10);
+//	//	 		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)tx_buffer, 10);
+//				HAL_UART_Transmit_DMA(&huart4, (uint8_t*)msg, strlen(msg));
+//			 }
+//	//	 	 if (rx_ready && rx_length != 0)
+//	//	 	 {
+//	//	 		rx_ready = 0;
+//	//	 		HAL_UART_Transmit_DMA(&huart4, (uint8_t*)tx_buffer, rx_length);
+//	//	 	 }
+//
+//		  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_SET);
 
-
-
-
-	 	HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
@@ -255,10 +256,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_9, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PB6 PB7 PB9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_9;
+  /*Configure GPIO pin : PB9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -270,7 +271,28 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart->Instance == UART4) {
+        tx_ready = 1; // Hardware is free again!
+    }
+}
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//    if (huart->Instance == UART4) {
+//        rx_ready = 1; // Hardware is free again!
+//    }
+//}
+//void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+//{
+//	if (huart->Instance == UART4)
+//	{
+//	    rx_ready = 1; // Hardware is free again!
+//	    rx_length = Size;
+//	    memcpy(tx_buffer, rx_buffer, rx_length);
+//	    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buffer, 10);
+//	    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
+//
+//	}
+//}
 /* USER CODE END 4 */
 
 /**
@@ -303,25 +325,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-//void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
-//    if (huart->Instance == UART4) {
-//        tx_ready = 1; // Hardware is free again!
-//    }
-//}
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-//    if (huart->Instance == UART4) {
-//        rx_ready = 1; // Hardware is free again!
-//    }
-//}
-void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
-{
-	if (huart->Instance == UART4)
-	{
-	    rx_ready = 1; // Hardware is free again!
-	    rx_length = Size;
-	    memcpy(tx_buffer, rx_buffer, rx_length);
-	    HAL_UARTEx_ReceiveToIdle_DMA(&huart4, rx_buffer, 10);
-	    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
-
-	}
-}
