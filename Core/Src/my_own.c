@@ -134,4 +134,18 @@ uint32_t get_temp(uint32_t value)
 	return (v25 - value)/avg_slope + 2500;
 }
 
+/*timer*/
+void start_timer(TIM_HandleTypeDef *timer)
+{
+	HAL_TIM_Base_Start_IT(timer);
+}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *timer)
+{
+	gpio_toggle(GPIOB, GPIO_PIN_9);
+}
 
+/*timer output compare*/
+void start_timer_oc(TIM_HandleTypeDef *timer, uint32_t channel)
+{
+	HAL_TIM_OC_Start(timer, channel);
+}

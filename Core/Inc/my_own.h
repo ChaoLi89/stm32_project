@@ -48,4 +48,12 @@ void adc_start_dma(ADC_HandleTypeDef* adc, uint32_t* results, uint16_t len);
 uint32_t get_temp(uint32_t value);
 uint32_t convert_to_value(uint32_t digit);
 
+/*timer normal*/
+void start_timer(TIM_HandleTypeDef *tim);
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *tim);
+
+/*timer output compare*/
+void start_timer_oc(TIM_HandleTypeDef *timer, uint32_t channel);
+
+
 #endif /* INC_MY_OWN_H_ */
